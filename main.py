@@ -16,11 +16,10 @@ MIN_CHARS = 1
 MAX_CHARS = 140
 
 
-def main() -> None:
-    text = ENTRY
-
-    # Gate validation, mirroring the sealed scorer:
-    # UTF-8 text, 1-140 characters, one line, not whitespace-only.
+def validate(text: str) -> None:
+    """Gate validation, mirroring the sealed scorer:
+    UTF-8 text, 1-140 characters, one line, not whitespace-only.
+    """
     if not (MIN_CHARS <= len(text) <= MAX_CHARS):
         raise SystemExit(
             f"entry is {len(text)} characters, outside the 1-140 gate"
@@ -30,13 +29,28 @@ def main() -> None:
     if not text.strip():
         raise SystemExit("entry must not be whitespace-only")
 
+
+def write_entry(text: str) -> str:
+    """Write the validated entry; returns the output path."""
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR") or "/output"
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, "entry.txt")
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(text)
+    return path
 
+
+def run() -> str:
+    """Validate the entry and write it; returns the output path."""
+    text = ENTRY
+    validate(text)
+    path = write_entry(text)
     print(f"wrote {len(text)} characters to {path}")
+    return path
+
+
+def main() -> None:
+    run()
 
 
 if __name__ == "__main__":
