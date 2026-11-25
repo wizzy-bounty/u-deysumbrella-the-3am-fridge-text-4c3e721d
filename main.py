@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+"""The 3AM Fridge Text — make.fun entry (program/v1).
+
+Writes the one line a smart fridge texts its owner at 3am to
+/output/entry.txt (or $MAKEFUN_OUTPUT_DIR/entry.txt when set).
+
+Python standard library only, deterministic, no network.
+"""
+
+import os
+
+# The entry: the fridge has decided this is the moment to speak.
+ENTRY = "You've opened me 14 times since midnight and eaten nothing. Therapy is cheaper than my electricity bill."
+
+MIN_CHARS = 1
+MAX_CHARS = 140
+
+
+def main() -> None:
+    text = ENTRY
+
+    # Gate validation, mirroring the sealed scorer:
+    # UTF-8 text, 1-140 characters, one line, not whitespace-only.
+    if not (MIN_CHARS <= len(text) <= MAX_CHARS):
+        raise SystemExit(
+            f"entry is {len(text)} characters, outside the 1-140 gate"
+        )
+    if "\n" in text or "\r" in text:
+        raise SystemExit("entry must be a single line")
+    if not text.strip():
+        raise SystemExit("entry must not be whitespace-only")
+
+    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR") or "/output"
+    os.makedirs(out_dir, exist_ok=True)
+    path = os.path.join(out_dir, "entry.txt")
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(text)
+
+    print(f"wrote {len(text)} characters to {path}")
+
+
+if __name__ == "__main__":
+    main()
